@@ -4,7 +4,7 @@
     <meta content="text/html; charset=utf-8" http-equiv="content-type" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link href="//cdn.staticfile.net/Primer/21.0.7/primer.css" rel="stylesheet" />
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
     <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
@@ -73,8 +73,10 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <div class="markdown-body" id="postBody"><p>话说四川峨眉山，乃是蜀中有名的一个胜地。昔人谓西蜀山水多奇，而峨眉尤胜，这句话实在不假。西蜀神权最胜，山上的庙宇寺观不下数百，每年朝山的善男信女，不远千里而来，加以山高水秀，层峦叠蟑，气象万千，那专为游山玩景的人，也着实不少。后山的风景尤为幽奇。自来深山大泽，多生龙蛇，深林幽谷，大都是那虎豹豺狼栖身之所。游后山的人，往往一去不返，一般人妄加揣测，有的说是被虎狼妖魔吃了去的，有的说被仙佛超度了去的，聚讼纷纭，莫衷一是。人到底是血肉之躯，意志薄弱的占十分之八九，因为前车之鉴，游后山的人，也就渐渐裹足不前，倒便宜了那些在后山养静的高人奇士们，省去了许多尘扰，独享那灵山胜境的清福。这且不言。</p>
 <p>四川自经明末张献忠之乱，十室九空，往往数百里路无有人烟，把这一个天府之国闹得阴风惨惨，如同鬼市一般。满清入关后，疆吏奏请将近川各省如两湖、江西、陕西的人民移入四川，也加上四川地大物丰，样样需要之物皆有，移去的人民，大有此间乐不思故土之概。这样的宾至如归，渐渐的也就恢复了人烟稠密的景象。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
+
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
 <div class="comments" id="comments"></div>
+
 </div>
     <div id="footer">Copyright © <span id="year"></span><a href="https://zhjhaibin.github.io/zhjhaibin"> Blog Title </a>
 <p>
@@ -129,6 +131,8 @@ console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n\n","padding:5p
 <script>
 document.getElementById("pathHome").setAttribute("d",IconList["home"]);
 document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
 
 function openComments(){
     cm=document.getElementById("comments");
