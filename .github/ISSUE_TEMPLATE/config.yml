@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 查看博客首页
+    url: https://zhjhaibin.github.io/zhjhaibin/
+    about: 查看已经发布的文章
+  - name: 查看维护说明
+    url: https://github.com/zhjhaibin/zhjhaibin/blob/main/MAINTENANCE.md
+    about: 了解写作、发布、改外观和排错方法

@@ -1,6 +1,19 @@
 {
-    "title":"Blog Title",
-    "subTitle":"Blog description",
-    "avatarUrl":"https://github.githubassets.com/favicons/favicon.svg",
-    "GMEEK_VERSION":"last"
+    "title": "zhjhaibin",
+    "subTitle": "记录技术、阅读与生活",
+    "avatarUrl": "https://avatars.githubusercontent.com/u/45322485?v=4",
+    "faviconUrl": "https://avatars.githubusercontent.com/u/45322485?v=4",
+    "ogImage": "https://avatars.githubusercontent.com/u/45322485?v=4",
+    "startSite": "2024-03-24",
+    "onePageListNum": 12,
+    "i18n": "CN",
+    "themeMode": "manual",
+    "dayTheme": "light",
+    "nightTheme": "dark",
+    "urlMode": "pinyin",
+    "UTC": 8,
+    "needComment": 1,
+    "showPostSource": 1,
+    "allHead": "<link rel=\"stylesheet\" href=\"/zhjhaibin/assets/blog.css\">",
+    "GMEEK_VERSION": "v2.22"
 }

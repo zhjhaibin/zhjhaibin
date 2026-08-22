@@ -1,18 +1,30 @@
-name: build Gmeek
+name: Build and deploy blog
 
 on:
   workflow_dispatch:
   issues:
-    types: [opened, edited]
+    types: [opened, edited, labeled, unlabeled, reopened, closed, deleted]
   schedule:
-    - cron: "0 16 * * *"
-    
+    # Refresh article metadata every Monday at 00:00 (Asia/Shanghai).
+    - cron: "0 16 * * 0"
+
+concurrency:
+  group: gmeek-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Generate blog
-    runs-on: ubuntu-20.04
-    if: ${{ github.event.repository.owner.id == github.event.sender.id || github.event_name == 'schedule' }}
-    permissions: write-all
+    runs-on: ubuntu-24.04
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          github.event_name == 'schedule' ||
+          github.event.repository.owner.id == github.event.sender.id }}
+    permissions:
+      contents: write
+      issues: read
+      pages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,12 +33,10 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
 
-      - name: Get config.json
+      - name: Check configuration
         run: |
-          echo "====== check config.josn file ======"
-          cat config.json
-          echo "====== check config.josn end  ======"
-          sudo apt-get install jq
+          jq empty config.json
+          jq . config.json
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -36,45 +46,52 @@ jobs:
       - name: Clone source code
         run: |
           GMEEK_VERSION=$(jq -r ".GMEEK_VERSION" config.json)
-          git clone https://github.com/Meekdai/Gmeek.git /opt/Gmeek;
-          cd /opt/Gmeek/
-          lastTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          if [ $GMEEK_VERSION == 'last' ]; then git checkout $lastTag; else git checkout $GMEEK_VERSION; fi;
+          git clone https://github.com/Meekdai/Gmeek.git "${RUNNER_TEMP}/Gmeek"
+          cd "${RUNNER_TEMP}/Gmeek"
+          last_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+          if [ "${GMEEK_VERSION}" = "last" ]; then
+            git checkout "${last_tag}"
+          else
+            git checkout "${GMEEK_VERSION}"
+          fi
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install -r /opt/Gmeek/requirements.txt
+          python -m pip install --upgrade pip
+          python -m pip install -r "${RUNNER_TEMP}/Gmeek/requirements.txt"
 
-      - name: Generate new html
+      - name: Generate site
         run: |
-          cp -r ./* /opt/Gmeek/
-          cd /opt/Gmeek/
-          python Gmeek.py ${{ secrets.GITHUB_TOKEN }} ${{ github.repository }} --issue_number '${{ github.event.issue.number }}'
-          cp -a /opt/Gmeek/docs ${{ github.workspace }} 
-          cp -a /opt/Gmeek/backup ${{ github.workspace }} 
-          cp /opt/Gmeek/blogBase.json ${{ github.workspace }} 
-          
-      - name: update html
+          cp -R ./* "${RUNNER_TEMP}/Gmeek/"
+          cd "${RUNNER_TEMP}/Gmeek"
+          # Gmeek v2.22 requires an explicit empty issue number for a full rebuild.
+          python Gmeek.py "${{ secrets.GITHUB_TOKEN }}" "${{ github.repository }}" --issue_number ''
+          cp -a "${RUNNER_TEMP}/Gmeek/docs" "${GITHUB_WORKSPACE}"
+          cp -a "${RUNNER_TEMP}/Gmeek/backup" "${GITHUB_WORKSPACE}"
+          cp "${RUNNER_TEMP}/Gmeek/blogBase.json" "${GITHUB_WORKSPACE}"
+
+      - name: Commit generated site
         run: |
-          git config --local user.email "$(jq -r ".email" config.json)"
-          git config --local user.name "${{ github.repository_owner }}"
-          git add .
-          git commit -a -m '🎉auto update by Gmeek action' || echo "nothing to commit"
-          git push || echo "nothing to push"
-          sleep 3
-          
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md blogBase.json backup docs
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+          else
+            git commit -m "chore: rebuild blog"
+            git push
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'docs/.'
-          
+
   deploy:
     name: Deploy blog
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: build
     permissions:
-      contents: write
       pages: write
       id-token: write
     concurrency:
