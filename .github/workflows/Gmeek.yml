@@ -1,6 +1,7 @@
 name: Build and deploy blog
 
 on:
+  workflow_call:
   workflow_dispatch:
   issues:
     types: [opened, edited, labeled, unlabeled, reopened, closed, deleted]
@@ -65,7 +66,7 @@ jobs:
           cp -R ./* "${RUNNER_TEMP}/Gmeek/"
           cd "${RUNNER_TEMP}/Gmeek"
           # Gmeek v2.22 requires an explicit empty issue number for a full rebuild.
-          python Gmeek.py "${{ secrets.GITHUB_TOKEN }}" "${{ github.repository }}" --issue_number ''
+          python Gmeek.py "${{ github.token }}" "${{ github.repository }}" --issue_number ''
           cp -a "${RUNNER_TEMP}/Gmeek/docs" "${GITHUB_WORKSPACE}"
           cp -a "${RUNNER_TEMP}/Gmeek/backup" "${GITHUB_WORKSPACE}"
           cp "${RUNNER_TEMP}/Gmeek/blogBase.json" "${GITHUB_WORKSPACE}"

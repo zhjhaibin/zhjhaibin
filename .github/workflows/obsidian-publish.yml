@@ -1,0 +1,54 @@
+name: Publish Obsidian notes
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "content/posts/**"
+      - "static/attachments/**"
+      - "scripts/sync_obsidian.py"
+      - "tests/**"
+      - ".github/workflows/obsidian-publish.yml"
+
+concurrency:
+  group: obsidian-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync notes to Issues
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Check notes and attachments
+        run: python scripts/sync_obsidian.py --check
+
+      - name: Sync GitHub Issues
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/sync_obsidian.py
+
+  rebuild:
+    name: Rebuild and deploy Gmeek
+    needs: sync
+    uses: ./.github/workflows/Gmeek.yml
+    permissions:
+      contents: write
+      issues: read
+      pages: write
+      id-token: write
